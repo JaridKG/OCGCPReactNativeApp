@@ -51,10 +51,13 @@ export default class App extends React.Component {
   }
 
   SearchTwitter = async () =>{
+    // When using tensor flow
     if(this.state.useTensorFlow)
       url = "https://ocgcp-projects.appspot.com/api/analysis/tf/" + this.state.twitterTerm;
     else
-      url = "https://ocgcp-projects.appspot.com/api/analysis/tb/" + this.state.twitterTerm;
+      url = "https://ocgcp-projects.appspot.com/api/analysis/nlapi/" + this.state.twitterTerm;
+
+    // Get JSON
     let response = await fetch(url);
     let responseJson = await response.json();
     console.log(responseJson);
