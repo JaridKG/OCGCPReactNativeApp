@@ -34,26 +34,35 @@ export default class App extends React.Component {
   constructor(){
     super();
     this.state = {
-      useTensorFlow: true,
-      twitterTerm: "",
+      useTensorFlow: false,
+      twitterTerm: "Trump",
       data: [
         { x: "Positive", y: 0, fill:"green" },
         { x: "Negative", y: 0, fill:"red" },
       ]
     }
   }
-
   toggleTensorFlow = (value) =>{
-    this.setState({useTensorFlow: value})
-    console.log(value);
+    this.setState({useTensorFlow: value});
+    if(value)
+      console.log("Using Tensorflow");
+    else
+      console.log("Using NL API");
   }
-  
-  SearchTwitter = () =>{
-    console.log(this.state.twitterTerm)
-    temp = Math.floor(Math.random() * 15)
-    newData = [{ x: "Positive", y: temp, fill:"green" },
-    { x: "Negative", y: 15-temp, fill:"red" },]
-    this.setState({data: newData})
+
+  SearchTwitter = async () =>{
+    if(this.state.useTensorFlow)
+      url = "https://ocgcp-projects.appspot.com/api/analysis/tf/" + this.state.twitterTerm;
+    else
+      url = "https://ocgcp-projects.appspot.com/api/analysis/tb/" + this.state.twitterTerm;
+    let response = await fetch(url);
+    let responseJson = await response.json();
+    console.log(responseJson);
+    newData = [
+      { x: "Positive", y: responseJson.positive, fill:"green" },
+      { x: "Negative", y: responseJson.negative, fill:"red" },
+    ]
+    this.setState({data: newData});
   }
   render() {
     return (
@@ -70,7 +79,7 @@ export default class App extends React.Component {
           </View>
           <View style={styles.row}>
             <Text style={styles.label}>Search Term:</Text>
-            <TextInput onChangeText={(val) => this.state.twitterTerm = val} style={styles.entry}/>
+            <TextInput onChangeText={(val) => this.setState({twitterTerm : val})} style={styles.entry}/>
           </View>
         </View>
         
@@ -108,13 +117,6 @@ export class Header extends React.Component {
       useTensorFlow: true,
       twitterTerm: ""
     }
-  }
-  toggleTensorFlow = (value) =>{
-    this.setState({useTensorFlow: value})
-    console.log(value);
-  }
-  SearchTwitter = () =>{
-    console.log(this.state.twitterTerm)
   }
   render() {
     return (
