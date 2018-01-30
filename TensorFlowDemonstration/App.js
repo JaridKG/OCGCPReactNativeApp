@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { StyleSheet, Text, View, Switch, TextInput, Button, Platform, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Switch, TextInput, Button, Platform, Dimensions, ActivityIndicator } from 'react-native';
 
 import Svg from "react-native-svg";
 import {
@@ -36,12 +36,15 @@ export default class App extends React.Component {
     this.state = {
       useTensorFlow: false,
       twitterTerm: "Trump",
+      average: "",
+      loading: false,
       data: [
         { x: "Positive", y: 0, fill:"green" },
         { x: "Negative", y: 0, fill:"red" },
       ]
     }
   }
+  
   toggleTensorFlow = (value) =>{
     this.setState({useTensorFlow: value});
     if(value)
@@ -61,12 +64,16 @@ export default class App extends React.Component {
     let response = await fetch(url);
     let responseJson = await response.json();
     console.log(responseJson);
+
+    this.setState({average: responseJson.average})
+
     newData = [
       { x: "Positive", y: responseJson.positive, fill:"green" },
       { x: "Negative", y: responseJson.negative, fill:"red" },
     ]
     this.setState({data: newData});
   }
+
   render() {
     return (
       <View style={styles.container}>
@@ -89,6 +96,17 @@ export default class App extends React.Component {
         <View style={{alignItems: 'center'}}>
           <Button style={styles.button} title='Search Twitter' onPress={this.SearchTwitter}/>
         </View>
+
+        {this.state.loading &&
+          <View style={styles.loading}>
+            <ActivityIndicator size='large' />
+          </View>
+        }
+
+        <View>
+          <Text style={styles.label}>Average</Text>
+        </View>
+
         <VictoryChart domainPadding={100}>
           <VictoryBar
             data={this.state.data}
@@ -178,4 +196,13 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth:1
   },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
